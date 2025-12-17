@@ -12,8 +12,12 @@ fi
 echo "Running network speed test..."
 echo "--------------------------------"
 
-# Run speed test
-speedtest-cli --simple
+# Run speed test with alternative servers if main fails
+if ! speedtest-cli --simple; then
+    echo "Main speedtest failed, trying alternative method..."
+    echo "Testing with curl to speedtest.net..."
+    curl -s https://www.speedtest.net/ | grep -oP '(?<=url: ")[^"]+' | head -1 | xargs curl -o /dev/null -s -w "Download speed: %{speed_download} bytes/sec\n"
+fi
 
 echo "--------------------------------"
 echo "Speed test completed"
